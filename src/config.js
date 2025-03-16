@@ -6,6 +6,15 @@ export default {
   douUrl: "https://jobs.dou.ua/vacancies/?category=QA",
 };
 
+export const EXCLUDE_VARS = [
+  "Python",
+  "Java",
+  "C#",
+  "офіс",
+  "Lead",
+  "Head"
+];
+
 // Helper functions
 export function formatJobsMessage(jobs) {
   if (!jobs || jobs.length === 0) {

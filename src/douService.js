@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import config from "./config.js";
+import { EXCLUDE_VARS } from "./config.js";
 
 async function loadDouJobsPage() {
   try {
@@ -43,5 +44,15 @@ export async function parseJobs() {
       });
     });
 
-  return jobs;
+  // Filter out excluded vacancies
+  const filteredJobs = filterExcludedVacancies(jobs);
+
+  return filteredJobs;
+}
+
+function filterExcludedVacancies(jobs) {
+  return jobs.filter((job) => {
+    // Check if job title contains any excluded term
+    return !EXCLUDE_VARS.some((term) => job.title.includes(term));
+  });
 }
