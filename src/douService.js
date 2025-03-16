@@ -31,12 +31,14 @@ export async function parseJobs() {
       const dateOfAdding = $(element).find(".date").text();
       const title = $(element).find(".vt").text();
       const companyName = $(element).find(".company").text();
+      const locations = $(element).find(".cities").text();
       const jobLink = $(element).find(".vt").attr("href");
 
       jobs.push({
         dateOfAdding,
         title,
         companyName,
+        locations,
         jobLink,
       });
     });

@@ -12,11 +12,14 @@ export function formatJobsMessage(jobs) {
     return "No QA jobs found.";
   }
 
-  let message = `📊 *DOU QA vacancies.* ${jobs[0].dateOfAdding}\n\n`;
+  let message = `📊 *DOU QA vacancies*\n\n`;
 
-  jobs.forEach((job) => {
-    message += `[${job.title}](${job.jobLink})\n`;
-    message += `🏢 ${job.companyName}\n\n`;
+  jobs.forEach((job, index) => {
+    if (index < 10) {
+      message += `[${job.title}](${job.jobLink}) @${job.companyName}\n`;
+      message += `🗓️ Posted: ${job.dateOfAdding}\n`;
+      message += `📍 Locations: ${job.locations}\n\n`;
+    }
   });
 
   return message;
