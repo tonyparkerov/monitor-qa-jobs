@@ -1,7 +1,7 @@
 /**
  * Formats job data into readable messages
  */
-class MessageFormatter {
+export default class MessageFormatter {
   /**
    * Format jobs into a Telegram message
    * @param {Array<Job>} jobs List of jobs
@@ -25,5 +25,3 @@ class MessageFormatter {
     return message;
   }
 }
-
-export default MessageFormatter;
