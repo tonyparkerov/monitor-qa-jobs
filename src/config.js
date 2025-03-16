@@ -12,12 +12,11 @@ export function formatJobsMessage(jobs) {
     return "No QA jobs found.";
   }
 
-  let message = "📊 *QA Jobs from DOU.ua*\n\n";
+  let message = `📊 *DOU QA vacancies.* ${jobs[0].dateOfAdding}\n\n`;
 
   jobs.forEach((job) => {
     message += `[${job.title}](${job.jobLink})\n`;
-    message += `🏢 ${job.companyName}\n`;
-    message += `📅 ${job.dateOfAdding}\n\n`;
+    message += `🏢 ${job.companyName}\n\n`;
   });
 
   return message;
