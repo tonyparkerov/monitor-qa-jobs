@@ -1,4 +1,3 @@
-import axios from "axios";
 import * as cheerio from "cheerio";
 import { config } from "../config/config.js";
 import Job from "../models/Job.js";
@@ -31,8 +30,9 @@ export default class DouJobService {
    */
   async _loadPage() {
     try {
-      const response = await axios.get(this.url);
-      return response.data;
+      const response = await fetch(this.url);
+      const data = await response.text();
+      return data;
     } catch (error) {
       console.error("Error loading DOU.ua:", error.message);
       return null;
