@@ -2,6 +2,10 @@ import DouJobService from "./services/DouJobService.js";
 import TelegramService from "./services/TelegramService.js";
 import MessageFormatter from "./utils/MessageFormatter.js";
 import JobFilter from "./filters/JobFilter.js";
+import {
+  getLastJobFromFile,
+  writeLastJobToFile,
+} from "./utils/UpdateLastJob.js";
 
 /**
  * Main application class
@@ -21,6 +25,8 @@ class JobMonitorApp {
     try {
       // Get jobs from DOU.ua
       const jobs = await this.douJobService.getJobs();
+
+      writeLastJobToFile(jobs[0].title);
 
       // Format message
       const message = this.messageFormatter.formatJobsMessage(jobs);

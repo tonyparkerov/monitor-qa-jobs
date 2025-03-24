@@ -1,12 +1,16 @@
 import fs from "fs";
 const path = "./src/config/last_job.txt";
 
-let lastJob = "No previous job recorded";
-if (fs.existsSync(path)) {
-  lastJob = fs.readFileSync(path, "utf8").trim();
+function getLastJobFromFile() {
+  let lastJob = "No previous job recorded";
+  if (fs.existsSync(path)) {
+    lastJob = fs.readFileSync(path, "utf8").trim();
+  }
+  return lastJob;
 }
 
-const newLastJob = new Date().toISOString();
-fs.writeFileSync(path, newLastJob);
+function writeLastJobToFile(jobTitle) {
+  fs.writeFileSync(path, jobTitle);
+}
 
-export { lastJob, newLastJob };
+export { getLastJobFromFile, writeLastJobToFile };

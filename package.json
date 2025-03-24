@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "update-job": "node src/utils/UpdateLastJob.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",

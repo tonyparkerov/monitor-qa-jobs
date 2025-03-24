@@ -32,9 +32,6 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: npm start
 
-      - name: Update last_job value
-        run: npm run update-job
-
       - name: Commit updates
         run: |
           git config --global user.name "github-actions"
