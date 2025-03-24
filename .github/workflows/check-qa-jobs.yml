@@ -29,3 +29,14 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
         run: npm start
+
+      - name: Update last_job value
+        run: npm update-job
+
+      - name: Commit updates
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
+          git add last_job.txt
+          git commit -m "🔄 last_job value updated: $(cat last_job.txt)" || echo "No new changes"
+          git push
