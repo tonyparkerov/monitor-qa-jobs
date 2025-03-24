@@ -57,9 +57,10 @@ export default class DouJobService {
         const companyName = $(element).find(".company").text();
         const locations = $(element).find(".cities").text();
         const jobLink = $(element).find(".vt").attr("href");
+        const salary = $(element).find(".salary").text();
 
         jobs.push(
-          new Job(dateOfAdding, title, companyName, locations, jobLink)
+          new Job(dateOfAdding, title, companyName, locations, jobLink, salary)
         );
       });
 

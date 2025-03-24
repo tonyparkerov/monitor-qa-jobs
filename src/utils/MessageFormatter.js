@@ -18,10 +18,14 @@ export default class MessageFormatter {
       if (index < 10) {
         message += `[${job.title}](${job.jobLink}) @${job.companyName}\n`;
         message += `🗓️ Posted: ${job.dateOfAdding}\n`;
-        message += `📍 Locations: ${job.locations}\n\n`;
+        if (job.salary) {
+          message += `📍 Locations: ${job.locations}\n`;
+          message += `💰 Salary: ${job.salary}\n\n`;
+        } else {
+          message += `📍 Locations: ${job.locations}\n\n`;
+        }
       }
     });
-
     return message;
   }
 }

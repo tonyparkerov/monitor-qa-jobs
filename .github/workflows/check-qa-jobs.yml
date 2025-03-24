@@ -2,8 +2,8 @@ name: Check QA Jobs
 
 on:
   schedule:
-    # Run every day at 15:00 UTC (18:00 Ukrainian time during summer)
-    - cron: "0 15 * * *"
+    # Run every day at 16:00 UTC (19:00 Ukrainian time during summer)
+    - cron: "0 16 * * *"
   workflow_dispatch:
     # Allow manual triggering
 

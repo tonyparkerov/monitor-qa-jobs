@@ -12,6 +12,16 @@ export const config = {
     url: "https://jobs.dou.ua/vacancies/?category=QA",
   },
   filters: {
-    excludedTerms: ["Python", "Java", "C#", "офіс", "Lead", "Leader", "Head"],
+    excludedTerms: [
+      "Python",
+      "Java",
+      "C#",
+      "офіс",
+      "office",
+      "Lead",
+      "Leader",
+      "Head",
+      "Trainee",
+    ],
   },
 };
