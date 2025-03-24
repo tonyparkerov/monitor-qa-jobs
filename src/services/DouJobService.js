@@ -1,14 +1,15 @@
 import * as cheerio from "cheerio";
 import { config } from "../config/config.js";
 import Job from "../models/Job.js";
+import JobFilter from "../filters/JobFilter.js";
 
 /**
  * Service for fetching and parsing job listings from DOU.ua
  */
 export default class DouJobService {
-  constructor(jobFilter) {
+  constructor() {
     this.url = config.dou.url;
-    this.jobFilter = jobFilter;
+    this.jobFilter = new JobFilter();
   }
 
   /**
@@ -20,7 +21,7 @@ export default class DouJobService {
     if (!htmlPage) return [];
 
     const jobs = this._parseJobs(htmlPage);
-    return this.jobFilter.filter(jobs);
+    return jobs;
   }
 
   /**
@@ -75,7 +76,7 @@ export default class DouJobService {
    */
   _getVacancyList(htmlPage) {
     const $ = cheerio.load(htmlPage);
-    const vacancyList = $("div#vacancyListId").html();
+    const vacancyList = $("div#vacancyListId").html() || "";
     return cheerio.load(vacancyList);
   }
 }

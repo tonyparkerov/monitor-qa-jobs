@@ -1,19 +1,14 @@
 import DouJobService from "./services/DouJobService.js";
 import TelegramService from "./services/TelegramService.js";
 import MessageFormatter from "./utils/MessageFormatter.js";
-import JobFilter from "./filters/JobFilter.js";
-import {
-  getLastJobFromFile,
-  writeLastJobToFile,
-} from "./utils/UpdateLastJob.js";
+import { writeLastJobToFile } from "./utils/UpdateLastJob.js";
 
 /**
  * Main application class
  */
 class JobMonitorApp {
   constructor() {
-    this.jobFilter = new JobFilter();
-    this.douJobService = new DouJobService(this.jobFilter);
+    this.douJobService = new DouJobService();
     this.telegramService = new TelegramService();
     this.messageFormatter = new MessageFormatter();
   }
@@ -25,11 +20,21 @@ class JobMonitorApp {
     try {
       // Get jobs from DOU.ua
       const jobs = await this.douJobService.getJobs();
+      if (jobs.length === 0) {
+        console.log("No jobs found");
+        return; // Exit early
+      }
+
+      const jobsFilteredByLast =
+        this.douJobService.jobFilter.filterByLastJobFromFile(jobs);
+      const jobsFilteredByTerms =
+        this.douJobService.jobFilter.filterByTerms(jobsFilteredByLast);
 
       writeLastJobToFile(jobs[0].title);
 
       // Format message
-      const message = this.messageFormatter.formatJobsMessage(jobs);
+      const message =
+        this.messageFormatter.formatJobsMessage(jobsFilteredByTerms);
 
       // Send message
       await this.telegramService.sendMessage(message);

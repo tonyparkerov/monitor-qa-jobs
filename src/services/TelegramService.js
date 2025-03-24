@@ -16,11 +16,19 @@ export default class TelegramService {
    * @returns {Promise} Promise from the Telegram API
    */
   async sendMessage(message) {
-    const bot = new TelegramBot(this.botToken, { polling: false });
+    if (!this.botToken || !this.chatId) {
+      console.error("Missing Telegram bot token or chat ID");
+      return;
+    }
 
-    return bot.sendMessage(this.chatId, message, {
-      parse_mode: "Markdown",
-      disable_web_page_preview: true,
-    });
+    try {
+      const bot = new TelegramBot(this.botToken, { polling: false });
+      return bot.sendMessage(this.chatId, message, {
+        parse_mode: "Markdown",
+        disable_web_page_preview: true,
+      });
+    } catch (error) {
+      console.error("Error sending Telegram message:", error);
+    }
   }
 }
