@@ -31,7 +31,7 @@ jobs:
         run: npm start
 
       - name: Update last_job value
-        run: npm update-job
+        run: npm run update-job
 
       - name: Commit updates
         run: |
