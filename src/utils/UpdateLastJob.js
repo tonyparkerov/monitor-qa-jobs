@@ -6,7 +6,7 @@ if (fs.existsSync(path)) {
   lastJob = fs.readFileSync(path, "utf8").trim();
 }
 
-const newLastJob = "new Date().toISOString()";
+const newLastJob = new Date().toISOString();
 fs.writeFileSync(path, newLastJob);
 
 export { lastJob, newLastJob };
