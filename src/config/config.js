@@ -22,6 +22,12 @@ export const config = {
       "Leader",
       "Head",
       "Trainee",
+      ".NET",
+      "Mobile",
+      "support",
+      "iOS",
+      "Android",
+      "Hardware",
     ],
   },
 };
