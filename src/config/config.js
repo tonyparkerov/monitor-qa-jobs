@@ -9,7 +9,7 @@ export const config = {
     chatId: process.env.CHAT_ID,
   },
   dou: {
-    url: "https://jobs.dou.ua/vacancies/?category=QA",
+    url: "https://jobs.dou.ua/vacancies/?remote&category=QA",
   },
   filters: {
     excludedTerms: [
