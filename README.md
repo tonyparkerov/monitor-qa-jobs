@@ -172,29 +172,6 @@ Messages sent to Telegram have the following format:
 📍 Locations: Kyiv, Lviv, Remote
 ```
 
-## ❓ Troubleshooting
-
-### Common Issues
-
-1. **No messages are sent to Telegram**
-
-   - Verify your BOT_TOKEN and CHAT_ID in the .env file or GitHub secrets
-   - Check if your bot has permission to send messages to the specified chat
-   - Run the application locally to see detailed error messages
-
-2. **GitHub Actions workflow fails**
-
-   - Check the workflow logs for detailed error information
-   - Verify that the required secrets are correctly set up
-
-3. **No jobs are found**
-   - Check if the DOU.ua URL is accessible and returning results
-   - The site structure might have changed, requiring updates to the parsing logic
-
-## 📝 License
-
-ISC
-
 ## 🤝 Contributing
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
