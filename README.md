@@ -2,7 +2,7 @@
 
 A Node.js application that monitors DOU.ua for new QA job vacancies, filters them based on configured criteria, and sends notifications to a Telegram chat.
 
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/yourusername/monitor-qa-jobs/check-qa-jobs.yml?style=flat-square)
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tonyparkerov/monitor-qa-jobs/check-qa-jobs.yml?style=flat-square)
 
 ## 🚀 Features
 
@@ -18,8 +18,8 @@ A Node.js application that monitors DOU.ua for new QA job vacancies, filters the
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │             │    │             │    │             │    │             │
-│  Fetch Jobs │───►│ Filter Jobs │───►│Format Message│───►│ Send to     │
-│  from DOU.ua│    │ by criteria │    │             │    │ Telegram    │
+│  Fetch Jobs │───►│ Filter Jobs │───►│    Format   │───►│ Send to     │
+│  from DOU.ua│    │ by criteria │    │   Message   │    │ Telegram    │
 │             │    │             │    │             │    │             │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
         │                 │
