@@ -16,7 +16,7 @@ export default class MessageFormatter {
 
     jobs.forEach((job, index) => {
       if (index < 20) {
-        message += `[${job.title}](${job.jobLink}) @${job.companyName}\n`;
+        message += `[${job.title}](${job.jobLink}) @ ${job.companyName}\n`;
         message += `🗓️ Posted: ${job.dateOfAdding}\n`;
         if (job.salary) {
           message += `📍 Locations: ${job.locations}\n`;
