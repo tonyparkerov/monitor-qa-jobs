@@ -28,6 +28,7 @@ export const config = {
       "iOS",
       "Android",
       "Hardware",
+      "Miltech"
     ],
   },
 };

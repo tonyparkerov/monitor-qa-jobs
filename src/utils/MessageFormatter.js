@@ -15,7 +15,7 @@ export default class MessageFormatter {
     let message = `📊 *DOU QA vacancies*\n\n`;
 
     jobs.forEach((job, index) => {
-      if (index < 10) {
+      if (index < 20) {
         message += `[${job.title}](${job.jobLink}) @${job.companyName}\n`;
         message += `🗓️ Posted: ${job.dateOfAdding}\n`;
         if (job.salary) {
