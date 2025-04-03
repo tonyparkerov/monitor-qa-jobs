@@ -31,6 +31,9 @@ export default class JobFilter {
    * @private
    */
   _isExcluded(job) {
-    return this.excludedTerms.some((term) => job.title.includes(term));
+    const lowerCaseTitle = job.title.toLowerCase();
+    return this.excludedTerms.some((term) =>
+      lowerCaseTitle.includes(term.toLowerCase())
+    );
   }
 }
