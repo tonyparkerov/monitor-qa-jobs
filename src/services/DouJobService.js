@@ -2,12 +2,14 @@ import * as cheerio from "cheerio";
 import { config } from "../config/config.js";
 import Job from "../models/Job.js";
 import JobFilter from "../filters/JobFilter.js";
+import AbstractJobService from "./AbstractJobService.js";
 
 /**
  * Service for fetching and parsing job listings from DOU.ua
  */
-export default class DouJobService {
+export default class DouJobService extends AbstractJobService {
   constructor() {
+    super();
     this.url = config.dou.url;
     this.jobFilter = new JobFilter();
     this.csrfToken = null;
@@ -18,13 +20,28 @@ export default class DouJobService {
    * @returns {Promise<Array<Job>>} List of job objects
    */
   async getJobs() {
-    const htmlPage = await this._loadPage();
-    const moreJobsJson = await this._loadMoreJobs();
-    if (!htmlPage || !moreJobsJson) return [];
+    try {
+      const htmlPage = await this._loadPage();
+      const moreJobsJson = await this._loadMoreJobs();
+      if (!htmlPage) return [];
 
-    const jobs = this._parseJobs(htmlPage);
-    const moreJobs = this._parseMoreJobs(moreJobsJson);
-    return jobs.concat(moreJobs);
+      const jobs = this._parseJobs(htmlPage);
+      const moreJobs = moreJobsJson ? this._parseMoreJobs(moreJobsJson) : [];
+      return jobs.concat(moreJobs);
+    } catch (error) {
+      console.error("Error getting jobs:", error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Process jobs through filters
+   * @param {Array<Job>} jobs List of jobs to process
+   * @returns {Array<Job>} Processed list of jobs
+   */
+  processJobs(jobs) {
+    const jobsFilteredByLast = this.jobFilter.filterByLastJobFromFile(jobs);
+    return this.jobFilter.filterByTerms(jobsFilteredByLast);
   }
 
   /**
@@ -35,16 +52,8 @@ export default class DouJobService {
   async _loadPage() {
     try {
       const response = await fetch(this.url);
-      // Extract CSRF token from cookies
-      const cookies = response.headers.get("set-cookie");
-      if (cookies) {
-        const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
-        if (csrfMatch) {
-          this.csrfToken = csrfMatch[1];
-        }
-      }
-      const data = await response.text();
-      return data;
+      this._extractCsrfToken(response);
+      return await response.text();
     } catch (error) {
       console.error("Error loading DOU.ua:", error.message);
       return null;
@@ -52,13 +61,30 @@ export default class DouJobService {
   }
 
   /**
+   * Extract CSRF token from response headers
+   * @param {Response} response The fetch response
+   * @private
+   */
+  _extractCsrfToken(response) {
+    const cookies = response.headers.get("set-cookie");
+    if (cookies) {
+      const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
+      if (csrfMatch) {
+        this.csrfToken = csrfMatch[1];
+      }
+    }
+  }
+
+  /**
    * Send XHR request to load more jobs
    * @param {number} count Number of jobs to load
    * @returns {Promise<Object>} JSON response with jobs data
+   * @private
    */
   async _loadMoreJobs(count = 20) {
     if (!this.csrfToken) {
-      throw new Error("CSRF token not available. Call _loadPage first.");
+      console.warn("CSRF token not available. Cannot load more jobs.");
+      return null;
     }
 
     try {
@@ -83,7 +109,7 @@ export default class DouJobService {
       return await response.json();
     } catch (error) {
       console.error("Error loading more jobs:", error.message);
-      throw error;
+      return null;
     }
   }
 
@@ -91,6 +117,7 @@ export default class DouJobService {
    * Parse the JSON response from loadMoreJobs to extract job listings
    * @param {Object} response JSON response from loadMoreJobs
    * @returns {Array<Job>} List of job objects
+   * @private
    */
   _parseMoreJobs(response) {
     if (!response || !response.html) {
