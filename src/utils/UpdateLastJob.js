@@ -1,62 +1,33 @@
 import fs from "fs";
-import path from "path";
+
+const path = "./src/config/last_job.txt";
 
 /**
- * Manages storage and retrieval of the last processed job
+ * Get the last job title from storage
+ * @returns {string} Last job title or default message if not found
  */
-export default class JobStorage {
-  /**
-   * Creates a new JobStorage instance
-   * @param {string} storagePath Path to the storage file
-   */
-  constructor(storagePath = "./src/config/last_job.txt") {
-    this.storagePath = storagePath;
-  }
-
-  /**
-   * Get the last job title from storage
-   * @returns {string} Last job title or default message if not found
-   */
-  getLastJob() {
-    try {
-      if (fs.existsSync(this.storagePath)) {
-        return fs.readFileSync(this.storagePath, "utf8").trim();
-      }
-    } catch (error) {
-      console.error("Error reading last job:", error.message);
+function getLastJobFromFile() {
+  let lastJob = "No previous job recorded";
+  try {
+    if (fs.existsSync(path)) {
+      lastJob = fs.readFileSync(path, "utf8").trim();
     }
-    return "No previous job recorded";
+  } catch (error) {
+    console.error("Error reading last job:", error.message);
   }
+  return lastJob;
+}
 
-  /**
-   * Save a job title to storage
-   * @param {string} jobTitle Title of the job to save
-   * @returns {boolean} True if successful, false otherwise
-   */
-  saveLastJob(jobTitle) {
-    try {
-      // Ensure the directory exists
-      const directory = path.dirname(this.storagePath);
-      if (!fs.existsSync(directory)) {
-        fs.mkdirSync(directory, { recursive: true });
-      }
-
-      fs.writeFileSync(this.storagePath, jobTitle);
-      return true;
-    } catch (error) {
-      console.error("Error saving last job:", error.message);
-      return false;
-    }
+/**
+ * Save a job title to storage
+ * @param {string} jobTitle Title of the job to save
+ */
+function writeLastJobToFile(jobTitle) {
+  try {
+    fs.writeFileSync(path, jobTitle);
+  } catch (error) {
+    console.error("Error saving last job:", error.message);
   }
 }
 
-// Backward compatibility functions
-const defaultStorage = new JobStorage();
-
-export function getLastJobFromFile() {
-  return defaultStorage.getLastJob();
-}
-
-export function writeLastJobToFile(jobTitle) {
-  return defaultStorage.saveLastJob(jobTitle);
-}
+export { getLastJobFromFile, writeLastJobToFile };

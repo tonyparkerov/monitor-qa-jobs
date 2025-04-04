@@ -46,35 +46,4 @@ export default class Job {
   get salary() {
     return this.#salary;
   }
-
-  /**
-   * Convert job to plain object
-   * @returns {Object} Plain object representation of the job
-   */
-  toObject() {
-    return {
-      dateOfAdding: this.#dateOfAdding,
-      title: this.#title,
-      companyName: this.#companyName,
-      locations: this.#locations,
-      jobLink: this.#jobLink,
-      salary: this.#salary,
-    };
-  }
-
-  /**
-   * Create a Job instance from a plain object
-   * @param {Object} obj Plain object with job data
-   * @returns {Job} New Job instance
-   */
-  static fromObject(obj) {
-    return new Job(
-      obj.dateOfAdding,
-      obj.title,
-      obj.companyName,
-      obj.locations,
-      obj.jobLink,
-      obj.salary
-    );
-  }
 }

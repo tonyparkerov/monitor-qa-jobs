@@ -43,16 +43,6 @@ export default class JobFilter {
   }
 
   /**
-   * Apply multiple filters in sequence
-   * @param {Array<Job>} jobs List of jobs to filter
-   * @param {Array<Function>} filters Filter functions to apply
-   * @returns {Array<Job>} Filtered list of jobs
-   */
-  applyFilters(jobs, filters) {
-    return filters.reduce((filteredJobs, filter) => filter(filteredJobs), jobs);
-  }
-
-  /**
    * Check if a job should be excluded based on its title
    * @param {Job} job Job to check
    * @returns {boolean} True if job should be excluded

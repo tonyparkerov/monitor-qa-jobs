@@ -35,16 +35,6 @@ export default class DouJobService extends AbstractJobService {
   }
 
   /**
-   * Process jobs through filters
-   * @param {Array<Job>} jobs List of jobs to process
-   * @returns {Array<Job>} Processed list of jobs
-   */
-  processJobs(jobs) {
-    const jobsFilteredByLast = this.jobFilter.filterByLastJobFromFile(jobs);
-    return this.jobFilter.filterByTerms(jobsFilteredByLast);
-  }
-
-  /**
    * Load the DOU.ua jobs page
    * @returns {Promise<string|null>} HTML content or null if error
    * @private

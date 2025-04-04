@@ -11,14 +11,4 @@ export default class AbstractJobService {
   async getJobs() {
     throw new Error("Method getJobs() must be implemented");
   }
-
-  /**
-   * Process the raw jobs data
-   * @param {Array} jobs Raw job data
-   * @returns {Array} Processed job data
-   * @abstract
-   */
-  processJobs(jobs) {
-    throw new Error("Method processJobs() must be implemented");
-  }
 }
