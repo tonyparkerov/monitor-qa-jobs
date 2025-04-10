@@ -1,31 +1,19 @@
 import { config } from "../config/config.js";
-import { getLastJobFromFile } from "../utils/UpdateLastJob.js";
 
 /**
  * Filter for job listings
  */
 export default class JobFilter {
-  /**
-   * Create a JobFilter instance
-   * @param {Array<string>} excludedTerms Terms to exclude in job titles (optional)
-   * @param {string} lastJob Title of the last processed job (optional)
-   */
-  constructor(excludedTerms = null, lastJob = null) {
+  constructor(excludedTerms = null) {
     this.excludedTerms = excludedTerms || config.filters.excludedTerms;
-    this.lastJob = lastJob || getLastJobFromFile();
   }
 
-  /**
-   * Filter jobs to include only those that appeared after the last recorded job
-   * @param {Array<Job>} jobs List of jobs to filter
-   * @returns {Array<Job>} Filtered list of jobs
-   */
-  filterByLastJobFromFile(jobs) {
-    if (!jobs || jobs.length === 0 || !this.lastJob) {
+  filterByLastJobFromDB(jobs, lastJobFromDB) {
+    if (!jobs || jobs.length === 0 || !lastJobFromDB) {
       return jobs || [];
     }
-
-    const indexOfLastJob = jobs.findIndex((job) => job.title === this.lastJob);
+    
+    const indexOfLastJob = jobs.findIndex((job) => job.title === lastJobFromDB);
     return indexOfLastJob > 0 ? jobs.slice(0, indexOfLastJob) : jobs;
   }
 

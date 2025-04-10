@@ -11,7 +11,8 @@ A Node.js application that monitors DOU.ua for new QA job vacancies, filters the
 - Tracks the last seen job to avoid sending duplicate notifications
 - Sends formatted job notifications to a designated Telegram chat
 - Runs automatically via GitHub Actions on a daily schedule
-- Stores the latest job information in the repository
+- Stores job information in MongoDB for persistent tracking
+- Provides detailed job statistics and analytics
 
 ## 🔄 How It Works
 
@@ -27,8 +28,8 @@ A Node.js application that monitors DOU.ua for new QA job vacancies, filters the
         ▼                 ▼
 ┌─────────────┐    ┌─────────────┐
 │             │    │             │
-│ Save Latest │    │ Excluded    │
-│ Job Title   │    │ Terms       │
+│  MongoDB    │    │ Excluded    │
+│  Database   │    │ Terms       │
 │             │    │             │
 └─────────────┘    └─────────────┘
 ```
@@ -38,6 +39,7 @@ A Node.js application that monitors DOU.ua for new QA job vacancies, filters the
 - Node.js (latest version recommended)
 - A Telegram bot token (create one via [@BotFather](https://t.me/botfather))
 - A Telegram chat ID where notifications will be sent
+- MongoDB database (local or cloud-based)
 
 ## 🔧 Installation
 
@@ -54,10 +56,12 @@ A Node.js application that monitors DOU.ua for new QA job vacancies, filters the
    npm install
    ```
 
-3. Create a `.env` file in the root directory with your Telegram credentials:
+3. Create a `.env` file in the root directory with your credentials:
    ```
    BOT_TOKEN=your_telegram_bot_token
    CHAT_ID=your_telegram_chat_id
+   MONGODB_URI=your_mongodb_connection_string
+   MONGODB_DB_NAME =your_db_name
    ```
 
 ## ⚙️ Configuration
@@ -139,10 +143,10 @@ You can manually trigger the workflow to test if everything is set up correctly:
 monitor-qa-jobs/
 ├── .github/workflows/    # GitHub Actions workflow configurations
 ├── src/
-│   ├── config/           # Application configuration and state
+│   ├── config/           # Application configuration
 │   ├── filters/          # Job filtering logic
-│   ├── models/           # Data models
-│   ├── services/         # Core services (DOU.ua parser, Telegram)
+│   ├── models/           # Data models and MongoDB schemas
+│   ├── services/         # Core services (DOU.ua parser, Telegram, MongoDB)
 │   ├── utils/            # Utility functions
 │   └── app.js            # Main application entry point
 ├── .env                  # Environment variables (not committed)
@@ -152,8 +156,9 @@ monitor-qa-jobs/
 ## 📦 Dependencies
 
 - [dotenv](https://github.com/motdotla/dotenv): Loads environment variables from a `.env` file
-- [cheerio](https://github.com/cheeriojs/cheerio): Fast, flexible & lean implementation of core jQuery designed specifically for the server.
+- [cheerio](https://github.com/cheeriojs/cheerio): Fast, flexible & lean implementation of core jQuery designed specifically for the server
 - [telegraf](https://github.com/telegraf/telegraf): Modern Telegram Bot Framework for Node.js
+- [mongoose](https://mongoosejs.com/): MongoDB object modeling for Node.js
 
 ## 📊 Example Output
 
