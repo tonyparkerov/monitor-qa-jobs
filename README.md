@@ -151,9 +151,9 @@ monitor-qa-jobs/
 
 ## 📦 Dependencies
 
-- [cheerio](https://github.com/cheeriojs/cheerio): Fast and flexible HTML parser
-- [node-telegram-bot-api](https://github.com/yagop/node-telegram-bot-api): Telegram Bot API client
-- [dotenv](https://github.com/motdotla/dotenv): Environment variables management
+- [dotenv](https://github.com/motdotla/dotenv): Loads environment variables from a `.env` file
+- [cheerio](https://github.com/cheeriojs/cheerio): Fast, flexible & lean implementation of core jQuery designed specifically for the server.
+- [telegraf](https://github.com/telegraf/telegraf): Modern Telegram Bot Framework for Node.js
 
 ## 📊 Example Output
 
