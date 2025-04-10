@@ -8,6 +8,11 @@ export const config = {
     botToken: process.env.BOT_TOKEN,
     chatId: process.env.CHAT_ID,
   },
+  mongodb: {
+    uri: process.env.MONGODB_URI,
+    dbName: process.env.MONGODB_DB_NAME,
+    collectionName: "last_job"
+  },
   dou: {
     url: "https://jobs.dou.ua/vacancies/?remote&category=QA",
   },
@@ -29,7 +34,7 @@ export const config = {
       "Android",
       "Hardware",
       "Miltech",
-      "Intern"
+      "Intern",
     ],
   },
 };
