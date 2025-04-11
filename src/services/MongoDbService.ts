@@ -1,32 +1,28 @@
 import { MongoClient } from "mongodb";
+import { MongoConfig } from "../types/index.js";
 
 /**
  * Service for interacting with MongoDB
  */
 export default class MongoDbService {
-  #client;
-  #uri;
-  #dbName;
-  #collectionName;
+  private uri: string;
+  private dbName: string;
+  private collection: string;
+  private client: MongoClient;
 
-  constructor(mongoConfig) {
-    this.#uri = mongoConfig.uri;
-    this.#dbName = mongoConfig.dbName;
-    this.#collectionName = mongoConfig.collectionName;
+  constructor(mongoConfig: MongoConfig) {
+    this.uri = mongoConfig.uri;
+    this.dbName = mongoConfig.dbName;
+    this.collection = mongoConfig.collection;
+    this.client = new MongoClient(this.uri);
   }
 
-  /**
-   * Connect to the MongoDB database
-   * @returns {Promise<boolean>} True if connected successfully
-   */
-  async connect() {
+  async connect(): Promise<boolean> {
     try {
-      if (!this.#uri) {
+      if (!this.uri) {
         throw new Error("MongoDB connection URI is not configured");
       }
-
-      this.#client = new MongoClient(this.#uri);
-      await this.#client.connect();
+      await this.client.connect();
       console.log("Connected to MongoDB");
       return true;
     } catch (error) {
@@ -35,28 +31,21 @@ export default class MongoDbService {
     }
   }
 
-  /**
-   * Close the MongoDB connection
-   */
-  async close() {
-    if (this.#client) {
-      await this.#client.close();
+  async close(): Promise<void> {
+    if (this.client) {
+      await this.client.close();
       console.log("MongoDB connection closed");
     }
   }
 
-  /**
-   * Get the last job from the database
-   * @returns {Promise<string|null>} The last job title or null if not found
-   */
-  async getLastJob() {
+  async getLastJob(): Promise<string | null> {
     try {
-      if (!this.#client) {
+      if (!this.client) {
         throw new Error("MongoDB client is not connected");
       }
 
-      const db = this.#client.db(this.#dbName);
-      const collection = db.collection(this.#collectionName);
+      const db = this.client.db(this.dbName);
+      const collection = db.collection(this.collection);
       const lastJobDoc = await collection.findOne({});
 
       if (lastJobDoc && lastJobDoc.jobTitle) {
@@ -72,19 +61,14 @@ export default class MongoDbService {
     }
   }
 
-  /**
-   * Save or update the last job in the database
-   * @param {string} jobTitle The title of the last job
-   * @returns {Promise<boolean>} True if saved successfully
-   */
-  async saveLastJob(jobTitle) {
+  async saveLastJob(jobTitle: string): Promise<boolean> {
     try {
-      if (!this.#client) {
+      if (!this.client) {
         throw new Error("MongoDB client is not connected");
       }
 
-      const db = this.#client.db(this.#dbName);
-      const collection = db.collection(this.#collectionName);
+      const db = this.client.db(this.dbName);
+      const collection = db.collection(this.collection);
 
       // Use upsert to either update existing document or insert a new one
       const result = await collection.updateOne(

@@ -7,7 +7,12 @@ import MessageFormatter from "./utils/MessageFormatter.js";
 /**
  * Main application class
  */
-class JobMonitorApp {
+export default class JobMonitorApp {
+  private jobService: DouJobService;
+  private telegramService: TelegramService;
+  private mongoService: MongoDbService;
+  private messageFormatter: MessageFormatter;
+
   constructor() {
     this.jobService = new DouJobService();
     this.telegramService = new TelegramService();
@@ -15,15 +20,11 @@ class JobMonitorApp {
     this.messageFormatter = new MessageFormatter();
   }
 
-  /**
-   * Run the job monitoring process
-   * @returns {Promise<boolean>} True if process completed successfully
-   */
-  async run() {
+  async run(): Promise<boolean> {
     try {
       // Get jobs from service
       const connection = await this.mongoService.connect();
-      let lastJobFromDB = "";
+      let lastJobFromDB: string | null = "";
       if (connection) {
         lastJobFromDB = await this.mongoService.getLastJob();
       }
@@ -104,6 +105,3 @@ app.run().then((success) => {
     process.exit(1);
   }
 });
-
-// Export for testing
-export default JobMonitorApp;
