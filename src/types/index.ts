@@ -19,6 +19,7 @@ export interface DouConfig {
 // Filters related types
 export interface FiltersConfig {
   excludedTerms: string[];
+  excludedCompanies: string[];
 }
 
 // Config type

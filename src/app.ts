@@ -31,7 +31,7 @@ export default class JobMonitorApp {
 
       console.log("Fetching jobs...");
       const jobs = await this.jobService.getJobs();
-      if (!jobs || jobs.length === 0) {
+      if (jobs.length === 0) {
         console.log("No jobs found");
         if (connection) await this.mongoService.close();
         return true;
@@ -58,7 +58,6 @@ export default class JobMonitorApp {
       if (jobs.length > 0 && connection) {
         try {
           await this.mongoService.saveLastJob(jobs[0].title);
-          console.log(`Saved new last job to MongoDB: ${jobs[0].title}`);
         } catch (dbError) {
           console.error("Error saving last job to MongoDB:", dbError);
         }

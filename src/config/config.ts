@@ -35,5 +35,6 @@ export const config: AppConfig = {
       "Miltech",
       "Intern",
     ],
+    excludedCompanies: []
   },
 };

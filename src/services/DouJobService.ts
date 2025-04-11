@@ -109,10 +109,6 @@ export default class DouJobService {
     return jobs;
   }
 
-  /**
-   * Extract the vacancy list from the HTML page
-   * @returns {CheerioAPI} Cheerio instance for the vacancy list
-   */
   private getVacancyList(htmlPage: string) {
     const $ = cheerio.load(htmlPage);
     const vacancyList = $("div#vacancyListId").html() || "";
