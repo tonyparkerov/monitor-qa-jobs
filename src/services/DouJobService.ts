@@ -2,60 +2,42 @@ import * as cheerio from "cheerio";
 import { config } from "../config/config.js";
 import Job from "../models/Job.js";
 import JobFilter from "../filters/JobFilter.js";
-import AbstractJobService from "./AbstractJobService.js";
 
 /**
  * Service for fetching and parsing job listings from DOU.ua
  */
-export default class DouJobService extends AbstractJobService {
-  constructor() {
-    super();
-    this.url = config.dou.url;
-    this.jobFilter = new JobFilter();
-    this.csrfToken = null;
-  }
+export default class DouJobService {
+  url = config.dou.url;
+  jobFilter = new JobFilter();
+  private csrfToken: string | null = null;
 
-  /**
-   * Fetch and parse jobs from DOU.ua
-   * @returns {Promise<Array<Job>>} List of job objects
-   */
   async getJobs() {
     try {
-      const htmlPage = await this._loadPage();
-      const moreJobsJson = await this._loadMoreJobs();
+      const htmlPage = await this.loadPage();
+      const moreJobsJson = await this.loadMoreJobs();
       if (!htmlPage) return [];
 
-      const jobs = this._parseJobs(htmlPage);
-      const moreJobs = moreJobsJson ? this._parseMoreJobs(moreJobsJson) : [];
+      const jobs = this.parseJobs(htmlPage);
+      const moreJobs = moreJobsJson ? this.parseMoreJobs(moreJobsJson) : [];
       return jobs.concat(moreJobs);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error getting jobs:", error.message);
       return [];
     }
   }
 
-  /**
-   * Load the DOU.ua jobs page
-   * @returns {Promise<string|null>} HTML content or null if error
-   * @private
-   */
-  async _loadPage() {
+  private async loadPage(): Promise<string | null> {
     try {
       const response = await fetch(this.url);
-      this._extractCsrfToken(response);
+      this.extractCsrfToken(response);
       return await response.text();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading DOU.ua:", error.message);
       return null;
     }
   }
 
-  /**
-   * Extract CSRF token from response headers
-   * @param {Response} response The fetch response
-   * @private
-   */
-  _extractCsrfToken(response) {
+  private extractCsrfToken(response: Response) {
     const cookies = response.headers.get("set-cookie");
     if (cookies) {
       const csrfMatch = cookies.match(/csrftoken=([^;]+)/);
@@ -65,13 +47,7 @@ export default class DouJobService extends AbstractJobService {
     }
   }
 
-  /**
-   * Send XHR request to load more jobs
-   * @param {number} count Number of jobs to load
-   * @returns {Promise<Object>} JSON response with jobs data
-   * @private
-   */
-  async _loadMoreJobs(count = 20) {
+  private async loadMoreJobs(count = 20) {
     if (!this.csrfToken) {
       console.warn("CSRF token not available. Cannot load more jobs.");
       return null;
@@ -97,49 +73,37 @@ export default class DouJobService extends AbstractJobService {
       }
 
       return await response.json();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error loading more jobs:", error.message);
       return null;
     }
   }
 
-  /**
-   * Parse the JSON response from loadMoreJobs to extract job listings
-   * @param {Object} response JSON response from loadMoreJobs
-   * @returns {Array<Job>} List of job objects
-   * @private
-   */
-  _parseMoreJobs(response) {
+  private parseMoreJobs(response: any): Job[] {
     if (!response || !response.html) {
       return [];
     }
 
     // Create cheerio instance from the HTML string in the response
     const $ = cheerio.load(response.html);
-    const jobs = [];
+    const jobs: Job[] = [];
 
     // Extract job data from each vacancy listing
     $(".l-vacancy").each((index, element) => {
-      jobs.push(this._createJobFromElement($, element));
+      jobs.push(this.createJobFromElement($, element));
     });
 
     return jobs;
   }
 
-  /**
-   * Parse the HTML page to extract job listings
-   * @param {string} htmlPage HTML content
-   * @returns {Array<Job>} List of job objects
-   * @private
-   */
-  _parseJobs(htmlPage) {
-    const $ = this._getVacancyList(htmlPage);
-    const jobs = [];
+  private parseJobs(htmlPage: string): Job[] {
+    const $ = this.getVacancyList(htmlPage);
+    const jobs: Job[] = [];
 
     $(".l-vacancy")
       .not(".__hot")
       .each((index, element) => {
-        jobs.push(this._createJobFromElement($, element));
+        jobs.push(this.createJobFromElement($, element));
       });
 
     return jobs;
@@ -147,24 +111,15 @@ export default class DouJobService extends AbstractJobService {
 
   /**
    * Extract the vacancy list from the HTML page
-   * @param {string} htmlPage HTML content
    * @returns {CheerioAPI} Cheerio instance for the vacancy list
-   * @private
    */
-  _getVacancyList(htmlPage) {
+  private getVacancyList(htmlPage: string) {
     const $ = cheerio.load(htmlPage);
     const vacancyList = $("div#vacancyListId").html() || "";
     return cheerio.load(vacancyList);
   }
 
-  /**
-   * Create a Job object from a DOM element
-   * @param {CheerioAPI} $ Cheerio instance
-   * @param {Element} element DOM element containing job data
-   * @returns {Job} Job object
-   * @private
-   */
-  _createJobFromElement($, element) {
+  private createJobFromElement($: any, element: any): Job {
     const dateOfAdding = $(element).find(".date").text().trim();
     const title = $(element).find(".vt").text().trim();
     const companyName = $(element).find(".company").text().trim();

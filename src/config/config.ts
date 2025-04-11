@@ -1,17 +1,16 @@
-import "dotenv/config";
+import { AppConfig } from "../types/index.js";
+import dotenv from 'dotenv';
+dotenv.config();
 
-/**
- * Application configuration
- */
-export const config = {
+export const config: AppConfig = {
   telegram: {
-    botToken: process.env.BOT_TOKEN,
-    chatId: process.env.CHAT_ID,
+    botToken: process.env.BOT_TOKEN ?? "",
+    chatId: process.env.CHAT_ID ?? "",
   },
   mongodb: {
-    uri: process.env.MONGODB_URI,
-    dbName: process.env.MONGODB_DB_NAME,
-    collectionName: "last_job"
+    uri: process.env.MONGODB_URI ?? "",
+    dbName: process.env.MONGODB_DB_NAME ?? "",
+    collection: "last_job",
   },
   dou: {
     url: "https://jobs.dou.ua/vacancies/?remote&category=QA",

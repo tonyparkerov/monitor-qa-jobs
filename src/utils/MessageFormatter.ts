@@ -1,34 +1,23 @@
+import type Job from "../models/Job.js";
+
 /**
  * Formats job data into readable messages
  */
 export default class MessageFormatter {
-  /**
-   * Format jobs into a Telegram message
-   * @param {Array<Job>} jobs List of jobs
-   * @returns {string} Formatted message
-   */
-  formatJobsMessage(jobs) {
-    if (!jobs || jobs.length === 0) {
-      return "No QA jobs found.";
-    }
+  formatJobsMessage(jobs: Job[], maxJobsCount = 20): string {
+    if (jobs.length === 0) return "No QA jobs found.";
 
     let message = "📊 *DOU QA vacancies*\n\n";
-    const jobsToProcess = jobs.slice(0, 20);
+    const jobsToProcess = jobs.slice(0, maxJobsCount);
 
     jobsToProcess.forEach((job) => {
-      message += this._formatSingleJob(job);
+      message += this.formatSingleJob(job);
     });
 
     return message;
   }
 
-  /**
-   * Format a single job into a message part
-   * @param {Job} job Job to format
-   * @returns {string} Formatted job text
-   * @private
-   */
-  _formatSingleJob(job) {
+  private formatSingleJob(job: Job): string {
     let jobText = `[${job.title}](${job.jobLink}) @ ${job.companyName}\n`;
     jobText += `🗓️ Posted: ${job.dateOfAdding}\n`;
 
