@@ -5,6 +5,11 @@ export interface MongoConfig {
   collection: string;
 }
 
+export type JobFromDB = {
+  jobTitle: string;
+  companyName: string;
+};
+
 // Telegram related types
 export interface TelegramConfig {
   botToken: string;

@@ -2,6 +2,7 @@ import { config } from "./config/config.js";
 import DouJobService from "./services/DouJobService.js";
 import MongoDbService from "./services/MongoDbService.js";
 import TelegramService from "./services/TelegramService.js";
+import { JobFromDB } from "./types/index.js";
 import MessageFormatter from "./utils/MessageFormatter.js";
 import { createLogger } from "./utils/logger.js";
 
@@ -26,7 +27,7 @@ export default class JobMonitorApp {
     try {
       // Get jobs from service
       const connection = await this.mongoService.connect();
-      let lastJobFromDB: string | null = "";
+      let lastJobFromDB: JobFromDB | null = null;
       if (connection) {
         lastJobFromDB = await this.mongoService.getLastJob();
       }
@@ -59,7 +60,10 @@ export default class JobMonitorApp {
       // Save the most recent job
       if (jobs.length > 0 && connection) {
         try {
-          await this.mongoService.saveLastJob(jobs[0].title);
+          await this.mongoService.saveLastJob({
+            jobTitle: jobs[0].title,
+            companyName: jobs[0].companyName,
+          });
         } catch (dbError) {
           this.logger.error(
             "Error saving last job to MongoDB",

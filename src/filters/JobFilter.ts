@@ -1,5 +1,6 @@
 import { config } from "../config/config.js";
 import type Job from "../models/Job.js";
+import { JobFromDB } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
 
 export default class JobFilter {
@@ -17,9 +18,12 @@ export default class JobFilter {
     });
   }
 
-  filterByLastJobFromDB(jobs: Job[], lastJobFromDB: string | null) {
+  filterByLastJobFromDB(jobs: Job[], lastJobFromDB: JobFromDB | null) {
     if (jobs.length === 0) return jobs || [];
-    const indexOfLastJob = jobs.findIndex((job) => job.title === lastJobFromDB);
+    const indexOfLastJob = jobs.findIndex(
+      (job) =>
+        job.title === lastJobFromDB?.jobTitle && lastJobFromDB.companyName
+    );
     const result = indexOfLastJob > 0 ? jobs.slice(0, indexOfLastJob) : jobs;
     this.logger.debug(`Filtered by last job: ${result.length} jobs remaining`);
     return result;

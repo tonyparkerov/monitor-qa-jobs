@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import { MongoConfig } from "../types/index.js";
+import { JobFromDB, MongoConfig } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
 
 /**
@@ -40,7 +40,7 @@ export default class MongoDbService {
     }
   }
 
-  async getLastJob(): Promise<string | null> {
+  async getLastJob(): Promise<JobFromDB | null> {
     try {
       if (!this.client) {
         throw new Error("MongoDB client is not connected");
@@ -50,11 +50,14 @@ export default class MongoDbService {
       const collection = db.collection(this.collection);
       const lastJobDoc = await collection.findOne({});
 
-      if (lastJobDoc && lastJobDoc.jobTitle) {
+      if (lastJobDoc && lastJobDoc.jobTitle && lastJobDoc.companyName) {
         this.logger.info(
-          `Retrieved last job from MongoDB: ${lastJobDoc.jobTitle}`
+          `Retrieved last job from MongoDB: ${lastJobDoc.jobTitle} | ${lastJobDoc.companyName}`
         );
-        return lastJobDoc.jobTitle;
+        return {
+          jobTitle: lastJobDoc.jobTitle,
+          companyName: lastJobDoc.companyName,
+        };
       }
 
       this.logger.info("No last job found in MongoDB");
@@ -65,7 +68,7 @@ export default class MongoDbService {
     }
   }
 
-  async saveLastJob(jobTitle: string): Promise<boolean> {
+  async saveLastJob(job: JobFromDB): Promise<boolean> {
     try {
       if (!this.client) {
         throw new Error("MongoDB client is not connected");
@@ -77,14 +80,24 @@ export default class MongoDbService {
       // Use upsert to either update existing document or insert a new one
       const result = await collection.updateOne(
         {}, // empty filter to match any document
-        { $set: { jobTitle, updatedAt: new Date() } },
+        {
+          $set: {
+            jobTitle: job.jobTitle,
+            companyName: job.companyName,
+            updatedAt: new Date(),
+          },
+        },
         { upsert: true }
       );
 
       if (result.modifiedCount > 0) {
-        this.logger.info(`Last job updated in MongoDB: ${jobTitle}`);
+        this.logger.info(
+          `Last job updated in MongoDB: ${job.jobTitle} | ${job.companyName}`
+        );
       } else if (result.upsertedCount > 0) {
-        this.logger.info(`Last job inserted in MongoDB: ${jobTitle}`);
+        this.logger.info(
+          `Last job inserted in MongoDB: ${job.jobTitle} | ${job.companyName}`
+        );
       }
 
       return true;
