@@ -1,18 +1,17 @@
 # DOU QA Jobs Monitor
 
-A Node.js application that monitors DOU.ua for new QA job vacancies, filters them based on configured criteria, and sends notifications to a Telegram chat.
+A TypeScript application that monitors DOU.ua for new QA job vacancies, filters them based on configured criteria, and sends notifications to a Telegram chat. The application uses MongoDB for state persistence.
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tonyparkerov/monitor-qa-jobs/check-qa-jobs.yml?style=flat-square)
 
 ## 🚀 Features
 
 - Automatically scrapes QA job vacancies from DOU.ua focusing on remote positions
-- Filters jobs based on configurable exclusion terms
-- Tracks the last seen job to avoid sending duplicate notifications
+- Filters jobs based on configurable exclusion terms (keywords and companies)
+- Tracks the last seen job in MongoDB to avoid sending duplicate notifications
 - Sends formatted job notifications to a designated Telegram chat
-- Runs automatically via GitHub Actions on a daily schedule
-- Stores job information in MongoDB for persistent tracking
-- Provides detailed job statistics and analytics
+- Runs automatically via GitHub Actions on a weekday schedule (Monday-Friday)
+- TypeScript-based codebase with proper typing and modular architecture
 
 ## 🔄 How It Works
 
@@ -61,7 +60,7 @@ A Node.js application that monitors DOU.ua for new QA job vacancies, filters the
    BOT_TOKEN=your_telegram_bot_token
    CHAT_ID=your_telegram_chat_id
    MONGODB_URI=your_mongodb_connection_string
-   MONGODB_DB_NAME =your_db_name
+   MONGODB_DB_NAME=your_db_name
    ```
 
 ## ⚙️ Configuration
@@ -70,9 +69,9 @@ The application can be configured by modifying the following files:
 
 ### Job Filtering
 
-Edit `src/config/config.js` to customize the job filtering criteria:
+Edit `src/config/config.ts` to customize the job filtering criteria:
 
-```javascript
+```typescript
 filters: {
   excludedTerms: [
     "Python",
@@ -83,18 +82,15 @@ filters: {
     "Lead",
     // Add or remove terms as needed
   ],
+  excludedCompanies: []
 },
 ```
 
-### Job Tracking
-
-The application keeps track of the last seen job in `src/config/last_job.txt`. This file is automatically updated and committed by the GitHub Actions workflow.
-
 ### DOU.ua URL Configuration
 
-You can modify the DOU.ua URL in `src/config/config.js` to target different job categories or criteria:
+You can modify the DOU.ua URL in `src/config/config.ts` to target different job categories or criteria:
 
-```javascript
+```typescript
 dou: {
   url: "https://jobs.dou.ua/vacancies/?remote&category=QA",
 },
@@ -104,19 +100,21 @@ dou: {
 
 ### Running Locally
 
-To run the application manually:
+To build and run the application:
 
 ```bash
 npm start
 ```
 
+This will compile the TypeScript code and run the application.
+
 ### GitHub Actions Workflow
 
 The application is configured to run automatically via GitHub Actions:
 
-- **Schedule**: Runs daily at 16:00 UTC (19:00 Ukrainian time during summer)
+- **Schedule**: Runs every weekday (Monday to Friday) at 16:00 UTC (19:00 Ukrainian time during summer)
 - **Manual Trigger**: Can be manually triggered via the GitHub Actions UI
-- **Auto-Commit**: Updates the `last_job.txt` file and commits changes to the repository
+- **Environment**: Uses GitHub Secrets for sensitive configuration
 
 ## 🚀 Deployment
 
@@ -128,6 +126,8 @@ For the GitHub Actions workflow to function properly, you need to set up the fol
 2. Add the following secrets:
    - `BOT_TOKEN`: Your Telegram bot token
    - `CHAT_ID`: Your Telegram chat ID
+   - `MONGODB_URI`: Your MongoDB connection string
+   - `MONGODB_DB_NAME`: Your MongoDB database name
 
 ### Testing the Workflow
 
@@ -145,20 +145,23 @@ monitor-qa-jobs/
 ├── src/
 │   ├── config/           # Application configuration
 │   ├── filters/          # Job filtering logic
-│   ├── models/           # Data models and MongoDB schemas
+│   ├── models/           # Job data model
 │   ├── services/         # Core services (DOU.ua parser, Telegram, MongoDB)
-│   ├── utils/            # Utility functions
-│   └── app.js            # Main application entry point
+│   ├── types/            # TypeScript type definitions
+│   ├── utils/            # Utility functions and message formatting
+│   └── app.ts            # Main application entry point
 ├── .env                  # Environment variables (not committed)
-└── package.json          # Project dependencies
+├── package.json          # Project dependencies
+└── tsconfig.json         # TypeScript configuration
 ```
 
 ## 📦 Dependencies
 
-- [dotenv](https://github.com/motdotla/dotenv): Loads environment variables from a `.env` file
-- [cheerio](https://github.com/cheeriojs/cheerio): Fast, flexible & lean implementation of core jQuery designed specifically for the server
-- [telegraf](https://github.com/telegraf/telegraf): Modern Telegram Bot Framework for Node.js
-- [mongoose](https://mongoosejs.com/): MongoDB object modeling for Node.js
+- [cheerio](https://github.com/cheeriojs/cheerio): For parsing and extracting job data from HTML
+- [telegraf](https://github.com/telegraf/telegraf): For sending notifications to Telegram
+- [mongodb](https://github.com/mongodb/node-mongodb-native): For storing job state information
+- [dotenv](https://github.com/motdotla/dotenv): For loading environment variables
+- TypeScript for type-safe code
 
 ## 📊 Example Output
 
