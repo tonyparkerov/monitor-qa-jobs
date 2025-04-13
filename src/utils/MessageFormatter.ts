@@ -1,15 +1,22 @@
 import type Job from "../models/Job.js";
+import { createLogger } from "./logger.js";
 
 /**
  * Formats job data into readable messages
  */
 export default class MessageFormatter {
+  private logger = createLogger("MessageFormatter");
+
   formatJobsMessage(jobs: Job[], maxJobsCount = 20): string {
-    if (jobs.length === 0) return "No QA jobs found.";
+    if (jobs.length === 0) {
+      this.logger.info("No jobs to format");
+      return "No QA jobs found.";
+    }
 
     let message = "📊 *DOU QA vacancies*\n\n";
     const jobsToProcess = jobs.slice(0, maxJobsCount);
 
+    this.logger.info(`Formatting ${jobsToProcess.length} jobs for message`);
     jobsToProcess.forEach((job) => {
       message += this.formatSingleJob(job);
     });

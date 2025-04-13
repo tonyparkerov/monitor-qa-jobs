@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { config } from "../config/config.js";
 import Job from "../models/Job.js";
 import JobFilter from "../filters/JobFilter.js";
+import { createLogger } from "../utils/logger.js";
 
 /**
  * Service for fetching and parsing job listings from DOU.ua
@@ -10,6 +11,7 @@ export default class DouJobService {
   url = config.dou.url;
   jobFilter = new JobFilter();
   private csrfToken: string | null = null;
+  private logger = createLogger("DouJobService");
 
   async getJobs() {
     try {
@@ -21,7 +23,7 @@ export default class DouJobService {
       const moreJobs = moreJobsJson ? this.parseMoreJobs(moreJobsJson) : [];
       return jobs.concat(moreJobs);
     } catch (error: any) {
-      console.error("Error getting jobs:", error.message);
+      this.logger.error("Error getting jobs", new Error(error.message));
       return [];
     }
   }
@@ -32,7 +34,7 @@ export default class DouJobService {
       this.extractCsrfToken(response);
       return await response.text();
     } catch (error: any) {
-      console.error("Error loading DOU.ua:", error.message);
+      this.logger.error("Error loading DOU.ua", new Error(error.message));
       return null;
     }
   }
@@ -49,7 +51,7 @@ export default class DouJobService {
 
   private async loadMoreJobs(count = 20) {
     if (!this.csrfToken) {
-      console.warn("CSRF token not available. Cannot load more jobs.");
+      this.logger.warn("CSRF token not available. Cannot load more jobs.");
       return null;
     }
 
@@ -74,7 +76,7 @@ export default class DouJobService {
 
       return await response.json();
     } catch (error: any) {
-      console.error("Error loading more jobs:", error.message);
+      this.logger.error("Error loading more jobs", new Error(error.message));
       return null;
     }
   }

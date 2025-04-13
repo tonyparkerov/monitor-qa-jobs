@@ -3,6 +3,7 @@ import DouJobService from "./services/DouJobService.js";
 import MongoDbService from "./services/MongoDbService.js";
 import TelegramService from "./services/TelegramService.js";
 import MessageFormatter from "./utils/MessageFormatter.js";
+import { createLogger } from "./utils/logger.js";
 
 /**
  * Main application class
@@ -12,6 +13,7 @@ export default class JobMonitorApp {
   private telegramService: TelegramService;
   private mongoService: MongoDbService;
   private messageFormatter: MessageFormatter;
+  private logger = createLogger("JobMonitorApp");
 
   constructor() {
     this.jobService = new DouJobService();
@@ -29,14 +31,14 @@ export default class JobMonitorApp {
         lastJobFromDB = await this.mongoService.getLastJob();
       }
 
-      console.log("Fetching jobs...");
+      this.logger.info("Fetching jobs...");
       const jobs = await this.jobService.getJobs();
       if (jobs.length === 0) {
-        console.log("No jobs found");
+        this.logger.info("No jobs found");
         if (connection) await this.mongoService.close();
         return true;
       }
-      console.log(`Found ${jobs.length} jobs`);
+      this.logger.info(`Found ${jobs.length} jobs`);
 
       // Filter jobs by last known job
       const jobsFilteredByLast =
@@ -45,11 +47,11 @@ export default class JobMonitorApp {
       // Filter jobs by excluded terms
       const filteredJobs =
         this.jobService.jobFilter.filterByTerms(jobsFilteredByLast);
-      console.log(`${filteredJobs.length} jobs after filtering`);
+      this.logger.info(`${filteredJobs.length} jobs after filtering`);
 
       // Only proceed if we have jobs to report
       if (filteredJobs.length === 0) {
-        console.log("No new jobs to report after filtering");
+        this.logger.info("No new jobs to report after filtering");
         if (connection) await this.mongoService.close();
         return true;
       }
@@ -59,7 +61,10 @@ export default class JobMonitorApp {
         try {
           await this.mongoService.saveLastJob(jobs[0].title);
         } catch (dbError) {
-          console.error("Error saving last job to MongoDB:", dbError);
+          this.logger.error(
+            "Error saving last job to MongoDB",
+            dbError as Error
+          );
         }
       }
 
@@ -67,7 +72,10 @@ export default class JobMonitorApp {
         try {
           await this.mongoService.close();
         } catch (closeError) {
-          console.error("Error closing MongoDB connection:", closeError);
+          this.logger.error(
+            "Error closing MongoDB connection",
+            closeError as Error
+          );
         }
       }
 
@@ -76,17 +84,20 @@ export default class JobMonitorApp {
 
       // Send message
       await this.telegramService.sendMessage(message);
-      console.log("Message sent successfully!");
+      this.logger.info("Message sent successfully!");
 
       return true;
     } catch (error) {
-      console.error("Error running job monitor:", error);
+      this.logger.error("Error running job monitor", error as Error);
       // Ensure MongoDB connection is closed in case of error
       if (this.mongoService) {
         try {
           await this.mongoService.close();
         } catch (closeError) {
-          console.error("Error closing MongoDB connection:", closeError);
+          this.logger.error(
+            "Error closing MongoDB connection",
+            closeError as Error
+          );
         }
       }
       return false;
@@ -95,12 +106,13 @@ export default class JobMonitorApp {
 }
 
 // Create and run the application
+const appLogger = createLogger("App");
 const app = new JobMonitorApp();
 app.run().then((success) => {
   if (success) {
-    console.log("Job monitor execution completed successfully");
+    appLogger.info("Job monitor execution completed successfully");
   } else {
-    console.error("Job monitor execution failed");
+    appLogger.error("Job monitor execution failed");
     process.exit(1);
   }
 });

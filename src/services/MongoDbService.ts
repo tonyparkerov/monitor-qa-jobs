@@ -1,5 +1,6 @@
 import { MongoClient } from "mongodb";
 import { MongoConfig } from "../types/index.js";
+import { createLogger } from "../utils/logger.js";
 
 /**
  * Service for interacting with MongoDB
@@ -9,6 +10,7 @@ export default class MongoDbService {
   private dbName: string;
   private collection: string;
   private client: MongoClient;
+  private logger = createLogger("MongoDbService");
 
   constructor(mongoConfig: MongoConfig) {
     this.uri = mongoConfig.uri;
@@ -23,10 +25,10 @@ export default class MongoDbService {
         throw new Error("MongoDB connection URI is not configured");
       }
       await this.client.connect();
-      console.log("Connected to MongoDB");
+      this.logger.info("Connected to MongoDB");
       return true;
     } catch (error) {
-      console.error("Failed to connect to MongoDB:", error);
+      this.logger.error("Failed to connect to MongoDB", error as Error);
       return false;
     }
   }
@@ -34,7 +36,7 @@ export default class MongoDbService {
   async close(): Promise<void> {
     if (this.client) {
       await this.client.close();
-      console.log("MongoDB connection closed");
+      this.logger.info("MongoDB connection closed");
     }
   }
 
@@ -49,14 +51,16 @@ export default class MongoDbService {
       const lastJobDoc = await collection.findOne({});
 
       if (lastJobDoc && lastJobDoc.jobTitle) {
-        console.log(`Retrieved last job from MongoDB: ${lastJobDoc.jobTitle}`);
+        this.logger.info(
+          `Retrieved last job from MongoDB: ${lastJobDoc.jobTitle}`
+        );
         return lastJobDoc.jobTitle;
       }
 
-      console.log("No last job found in MongoDB");
+      this.logger.info("No last job found in MongoDB");
       return null;
     } catch (error) {
-      console.error("Failed to get last job from MongoDB:", error);
+      this.logger.error("Failed to get last job from MongoDB", error as Error);
       return null;
     }
   }
@@ -78,14 +82,14 @@ export default class MongoDbService {
       );
 
       if (result.modifiedCount > 0) {
-        console.log(`Last job updated in MongoDB: ${jobTitle}`);
+        this.logger.info(`Last job updated in MongoDB: ${jobTitle}`);
       } else if (result.upsertedCount > 0) {
-        console.log(`Last job inserted in MongoDB: ${jobTitle}`);
+        this.logger.info(`Last job inserted in MongoDB: ${jobTitle}`);
       }
 
       return true;
     } catch (error) {
-      console.error("Failed to save last job to MongoDB:", error);
+      this.logger.error("Failed to save last job to MongoDB", error as Error);
       return false;
     }
   }

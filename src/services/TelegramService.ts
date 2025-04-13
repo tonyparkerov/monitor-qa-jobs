@@ -1,5 +1,6 @@
 import { Telegraf } from "telegraf";
 import { config } from "../config/config.js";
+import { createLogger } from "../utils/logger.js";
 
 /**
  * Service for sending messages via Telegram using Telegraf
@@ -8,6 +9,7 @@ export default class TelegramService {
   private botToken: string;
   private chatId: string | number;
   private bot: Telegraf | null;
+  private logger = createLogger("TelegramService");
 
   constructor(botToken = null, chatId = null) {
     this.botToken = botToken || config.telegram.botToken;
@@ -19,14 +21,14 @@ export default class TelegramService {
     if (!this.bot && this.botToken) {
       this.bot = new Telegraf(this.botToken);
     } else if (!this.botToken) {
-      console.error("Missing Telegram bot token");
+      this.logger.error("Missing Telegram bot token");
     }
   }
 
   async sendMessage(message: string) {
     this.initializeBot();
     if (!this.bot || !this.chatId) {
-      console.error("Bot not initialized or missing chat ID");
+      this.logger.error("Bot not initialized or missing chat ID");
       return null;
     }
 
@@ -37,7 +39,7 @@ export default class TelegramService {
         link_preview_options: { is_disabled: true },
       });
     } catch (error) {
-      console.error("Error sending Telegram message:", error);
+      this.logger.error("Error sending Telegram message", error as Error);
       return null;
     }
   }
