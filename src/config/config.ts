@@ -13,7 +13,8 @@ export const config: AppConfig = {
     collection: "last_job",
   },
   dou: {
-    url: "https://jobs.dou.ua/vacancies/?remote&category=QA",
+    url: "https://jobs.dou.ua/vacancies/",
+    queryParam: "?remote=&category=QA",
   },
   filters: {
     excludedTerms: [

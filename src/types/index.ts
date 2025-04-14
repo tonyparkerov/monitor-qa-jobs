@@ -19,6 +19,7 @@ export interface TelegramConfig {
 // DOU related types
 export interface DouConfig {
   url: string;
+  queryParam?: string;
 }
 
 // Filters related types

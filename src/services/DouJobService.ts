@@ -9,6 +9,7 @@ import { createLogger } from "../utils/logger.js";
  */
 export default class DouJobService {
   url = config.dou.url;
+  queryParam = config.dou.queryParam;
   jobFilter = new JobFilter();
   private csrfToken: string | null = null;
   private logger = createLogger("DouJobService");
@@ -30,7 +31,7 @@ export default class DouJobService {
 
   private async loadPage(): Promise<string | null> {
     try {
-      const response = await fetch(this.url);
+      const response = await fetch(`${this.url}${this.queryParam}`);
       this.extractCsrfToken(response);
       return await response.text();
     } catch (error: any) {
@@ -56,19 +57,16 @@ export default class DouJobService {
     }
 
     try {
-      const response = await fetch(
-        "https://jobs.dou.ua/vacancies/xhr-load/?category=QA",
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-            origin: "https://jobs.dou.ua",
-            Cookie: `csrftoken=${this.csrfToken}`,
-          },
-          body: `csrfmiddlewaretoken=${this.csrfToken}&count=${count}`,
-          redirect: "follow",
-        }
-      );
+      const response = await fetch(`${this.url}xhr-load/${this.queryParam}`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          origin: "https://jobs.dou.ua",
+          Cookie: `csrftoken=${this.csrfToken}`,
+        },
+        body: `csrfmiddlewaretoken=${this.csrfToken}&count=${count}`,
+        redirect: "follow",
+      });
 
       if (!response.ok) {
         throw new Error(`HTTP error ${response.status}`);
