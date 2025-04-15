@@ -8,8 +8,8 @@ import { createLogger } from "../utils/logger.js";
  * Service for fetching and parsing job listings from DOU.ua
  */
 export default class DouJobService {
-  url = config.dou.url;
-  queryParam = config.dou.queryParam;
+  private url = config.dou.url;
+  private queryParam = config.dou.queryParam;
   jobFilter = new JobFilter();
   private csrfToken: string | null = null;
   private logger = createLogger("DouJobService");

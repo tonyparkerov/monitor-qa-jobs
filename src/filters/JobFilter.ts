@@ -4,14 +4,11 @@ import { JobFromDB } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
 
 export default class JobFilter {
-  excludedTerms: string[];
-  excludedCompanies: string[];
+  private excludedTerms: string[] = config.filters.excludedTerms;
+  private excludedCompanies: string[] = config.filters.excludedCompanies;
   private logger = createLogger("JobFilter");
 
-  constructor(excludedTerms = [], excludedCompanies = []) {
-    this.excludedTerms = excludedTerms || config.filters.excludedTerms;
-    this.excludedCompanies =
-      excludedCompanies || config.filters.excludedCompanies;
+  constructor() {
     this.logger.debug("Initialized job filter", {
       excludedTerms: this.excludedTerms,
       excludedCompanies: this.excludedCompanies,
