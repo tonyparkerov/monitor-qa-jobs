@@ -46,9 +46,15 @@ export default class JobMonitorApp {
         this.jobService.jobFilter.filterByLastJobFromDB(jobs, lastJobFromDB);
 
       // Filter jobs by excluded terms
-      const filteredJobs =
+      let filteredJobs =
         this.jobService.jobFilter.filterByTerms(jobsFilteredByLast);
-      this.logger.info(`${filteredJobs.length} jobs after filtering`);
+      this.logger.info(`${filteredJobs.length} jobs after excluding by terms`);
+
+      filteredJobs =
+        this.jobService.jobFilter.filterByCompanyName(filteredJobs);
+      this.logger.info(
+        `${filteredJobs.length} jobs after excluding by company`
+      );
 
       // Only proceed if we have jobs to report
       if (filteredJobs.length === 0) {

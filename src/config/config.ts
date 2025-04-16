@@ -1,5 +1,5 @@
 import { AppConfig } from "../types/index.js";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 dotenv.config();
 
 export const config: AppConfig = {
@@ -36,6 +36,6 @@ export const config: AppConfig = {
       "Miltech",
       "Intern",
     ],
-    excludedCompanies: []
+    excludedCompanies: ["MOYO"],
   },
 };
