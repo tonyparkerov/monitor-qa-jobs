@@ -19,7 +19,8 @@ export default class JobFilter {
     if (jobs.length === 0) return jobs || [];
     const indexOfLastJob = jobs.findIndex(
       (job) =>
-        job.title === lastJobFromDB?.jobTitle && lastJobFromDB.companyName
+        job.title === lastJobFromDB?.jobTitle &&
+        job.companyName === lastJobFromDB.companyName
     );
     const result = indexOfLastJob > 0 ? jobs.slice(0, indexOfLastJob) : jobs;
     this.logger.debug(`Filtered by last job: ${result.length} jobs remaining`);
@@ -53,8 +54,8 @@ export default class JobFilter {
 
   private isExcludedByCompanies(job: Job): boolean {
     const lowerCaseCompany = job.companyName.toLowerCase();
-    return this.excludedCompanies.some((term) =>
-      lowerCaseCompany.includes(term.toLowerCase())
+    return this.excludedCompanies.some(
+      (term) => lowerCaseCompany === term.toLowerCase()
     );
   }
 }
