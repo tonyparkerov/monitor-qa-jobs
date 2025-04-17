@@ -1,7 +1,6 @@
 import * as cheerio from "cheerio";
 import { config } from "../config/config.js";
 import Job from "../models/Job.js";
-import JobFilter from "../filters/JobFilter.js";
 import { createLogger } from "../utils/logger.js";
 
 /**
@@ -10,7 +9,6 @@ import { createLogger } from "../utils/logger.js";
 export default class DouJobService {
   private url = config.dou.url;
   private queryParam = config.dou.queryParam;
-  jobFilter = new JobFilter();
   private csrfToken: string | null = null;
   private logger = createLogger("DouJobService");
 

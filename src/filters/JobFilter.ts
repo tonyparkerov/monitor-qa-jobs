@@ -1,60 +1,80 @@
-import { config } from "../config/config.js";
 import type Job from "../models/Job.js";
 import { JobFromDB } from "../types/index.js";
 import { createLogger } from "../utils/logger.js";
 
 export default class JobFilter {
-  private excludedTerms: string[] = config.filters.excludedTerms;
-  private excludedCompanies: string[] = config.filters.excludedCompanies;
+  private jobsToFilter: Job[];
   private logger = createLogger("JobFilter");
 
-  constructor() {
-    this.logger.debug("Initialized job filter", {
-      excludedTerms: this.excludedTerms,
-      excludedCompanies: this.excludedCompanies,
-    });
+  constructor(jobsArray: Job[]) {
+    this.jobsToFilter = jobsArray;
+    this.logger.debug("Initialized job filter");
   }
 
-  filterByLastJobFromDB(jobs: Job[], lastJobFromDB: JobFromDB | null) {
-    if (jobs.length === 0) return jobs || [];
-    const indexOfLastJob = jobs.findIndex(
+  getFilteredJobs() {
+    this.logger.debug(`${this.jobsToFilter.length} jobs remaining`);
+    return this.jobsToFilter;
+  }
+
+  filterByLastJobFromDB(lastJobFromDB: JobFromDB | null) {
+    if (this.jobsToFilter.length === 0) return this;
+    const indexOfLastJob = this.jobsToFilter.findIndex(
       (job) =>
         job.title === lastJobFromDB?.jobTitle &&
         job.companyName === lastJobFromDB.companyName
     );
-    const result = indexOfLastJob > 0 ? jobs.slice(0, indexOfLastJob) : jobs;
-    this.logger.debug(`Filtered by last job: ${result.length} jobs remaining`);
-    return result;
+    if (indexOfLastJob > 0) {
+      this.jobsToFilter = this.jobsToFilter.slice(0, indexOfLastJob);
+      this.logger.debug(
+        `Filtered by last job: ${this.jobsToFilter.length} jobs remaining`
+      );
+    }
+    return this;
   }
 
-  filterByTerms(jobs: Job[]) {
-    if (jobs.length === 0) return [];
-    const result = jobs.filter((job) => !this.isExcludedByTerms(job));
+  filterByTerms(excludedTerms: string[]) {
     this.logger.debug(
-      `Filtered by terms: ${result.length}/${jobs.length} jobs remaining`
+      `Terms in jobs titles to exclude: ${JSON.stringify(excludedTerms)}`
     );
-    return result;
-  }
-
-  filterByCompanyName(jobs: Job[]) {
-    if (jobs.length === 0) return [];
-    const result = jobs.filter((job) => !this.isExcludedByCompanies(job));
+    if (this.jobsToFilter.length === 0) return this;
+    const result = this.jobsToFilter.filter(
+      (job) => !this.isExcludedByTerms(excludedTerms, job)
+    );
+    this.jobsToFilter = result;
     this.logger.debug(
-      `Filtered by company: ${result.length}/${jobs.length} jobs remaining`
+      `Filtered by terms: ${this.jobsToFilter.length} jobs remaining`
     );
-    return result;
+    return this;
   }
 
-  private isExcludedByTerms(job: Job): boolean {
+  filterByCompanyName(excludedCompanies: string[]) {
+    this.logger.debug(
+      `Companies to exclude: ${JSON.stringify(excludedCompanies)}`
+    );
+    if (this.jobsToFilter.length === 0) return this;
+    const result = this.jobsToFilter.filter(
+      (job) => !this.isExcludedByCompanies(excludedCompanies, job)
+    );
+    this.jobsToFilter = result;
+    this.logger.debug(
+      `Filtered by company: ${this.jobsToFilter.length} jobs remaining`
+    );
+    return this;
+  }
+
+  private isExcludedByTerms(excludedTerms: string[], job: Job): boolean {
     const lowerCaseTitle = job.title.toLowerCase();
-    return this.excludedTerms.some((term) =>
+    return excludedTerms.some((term) =>
       lowerCaseTitle.includes(term.toLowerCase())
     );
   }
 
-  private isExcludedByCompanies(job: Job): boolean {
+  private isExcludedByCompanies(
+    excludedCompanies: string[],
+    job: Job
+  ): boolean {
     const lowerCaseCompany = job.companyName.toLowerCase();
-    return this.excludedCompanies.some(
+    return excludedCompanies.some(
       (term) => lowerCaseCompany === term.toLowerCase()
     );
   }

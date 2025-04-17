@@ -1,4 +1,5 @@
 import { config } from "./config/config.js";
+import JobFilter from "./filters/JobFilter.js";
 import DouJobService from "./services/DouJobService.js";
 import MongoDbService from "./services/MongoDbService.js";
 import TelegramService from "./services/TelegramService.js";
@@ -41,20 +42,12 @@ export default class JobMonitorApp {
       }
       this.logger.info(`Found ${jobs.length} jobs`);
 
-      // Filter jobs by last known job
-      const jobsFilteredByLast =
-        this.jobService.jobFilter.filterByLastJobFromDB(jobs, lastJobFromDB);
-
-      // Filter jobs by excluded terms
-      let filteredJobs =
-        this.jobService.jobFilter.filterByTerms(jobsFilteredByLast);
-      this.logger.info(`${filteredJobs.length} jobs after excluding by terms`);
-
-      filteredJobs =
-        this.jobService.jobFilter.filterByCompanyName(filteredJobs);
-      this.logger.info(
-        `${filteredJobs.length} jobs after excluding by company`
-      );
+      const filter = new JobFilter(jobs);
+      const filteredJobs = filter
+        .filterByLastJobFromDB(lastJobFromDB)
+        .filterByTerms(config.filters.excludedTerms)
+        .filterByCompanyName(config.filters.excludedCompanies)
+        .getFilteredJobs();
 
       // Only proceed if we have jobs to report
       if (filteredJobs.length === 0) {
