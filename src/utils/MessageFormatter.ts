@@ -7,13 +7,13 @@ import { createLogger } from "./logger.js";
 export default class MessageFormatter {
   private logger = createLogger("MessageFormatter");
 
-  formatJobsMessage(jobs: Job[], maxJobsCount = 20): string {
+  formatJobsMessage(jobs: Job[], maxJobsCount = 30): string {
     if (jobs.length === 0) {
       this.logger.info("No jobs to format");
       return "No QA jobs found.";
     }
 
-    let message = "📊 *DOU QA vacancies*\n\n";
+    let message = `📊 *DOU QA vacancies*(${jobs.length} found!)\n\n`;
     const jobsToProcess = jobs.slice(0, maxJobsCount);
 
     this.logger.info(`Formatting ${jobsToProcess.length} jobs for message`);
