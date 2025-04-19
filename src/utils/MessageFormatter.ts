@@ -7,7 +7,7 @@ import { createLogger } from "./logger.js";
 export default class MessageFormatter {
   private logger = createLogger("MessageFormatter");
 
-  formatJobsMessage(jobs: Job[], maxJobsCount = 31): string {
+  formatJobsMessage(jobs: Job[], maxJobsCount = 30): string {
     if (jobs.length === 0) {
       this.logger.info("No jobs to format");
       return "No QA jobs found.";
