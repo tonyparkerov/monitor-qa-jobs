@@ -11,18 +11,11 @@ import { createLogger } from "../utils/logger.js";
  * Main application class
  */
 export default class JobMonitorApp {
-  private jobService: DouJobService;
-  private telegramService: TelegramService;
-  private mongoService: MongoDbService;
-  private messageFormatter: MessageFormatter;
+  private jobService = new DouJobService();
+  private telegramService = new TelegramService();
+  private mongoService = new MongoDbService(config.mongodb);
+  private messageFormatter = new MessageFormatter();
   private logger = createLogger("JobMonitorApp");
-
-  constructor() {
-    this.jobService = new DouJobService();
-    this.telegramService = new TelegramService();
-    this.mongoService = new MongoDbService(config.mongodb);
-    this.messageFormatter = new MessageFormatter();
-  }
 
   async run(): Promise<boolean> {
     try {
