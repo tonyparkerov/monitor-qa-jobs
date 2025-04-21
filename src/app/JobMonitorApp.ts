@@ -19,21 +19,23 @@ export default class JobMonitorApp {
 
   async run(): Promise<boolean> {
     try {
-      // Get jobs from service
-      const connection = await this.mongoService.connect();
-      let lastJobFromDB: JobFromDB | null = null;
-      if (connection) {
-        lastJobFromDB = await this.mongoService.getLastJob();
-      }
-
-      this.logger.info("Fetching jobs...");
       const jobs = await this.jobService.getJobs();
       if (jobs.length === 0) {
-        this.logger.info("No jobs found");
-        if (connection) await this.mongoService.close();
+        await this.telegramService.sendMessage("New jobs not found");
         return true;
       }
-      this.logger.info(`Found ${jobs.length} jobs`);
+
+      // Get last job from DB
+      let lastJobFromDB: JobFromDB | null = null;
+      lastJobFromDB = await this.mongoService.getLastJob();
+
+      if (
+        jobs[0].title === lastJobFromDB?.jobTitle &&
+        jobs[0].companyName === lastJobFromDB.companyName
+      ) {
+        await this.telegramService.sendMessage("New jobs not found");
+        return true;
+      }
 
       const filter = new JobFilter(jobs);
       const filteredJobs = filter
@@ -42,60 +44,24 @@ export default class JobMonitorApp {
         .filterByCompanyName(config.filters.excludedCompanies)
         .getFilteredJobs();
 
+      // Save the most recent job
+      await this.mongoService.saveLastJob({
+        jobTitle: jobs[0].title,
+        companyName: jobs[0].companyName,
+      });
+
       // Only proceed if we have jobs to report
       if (filteredJobs.length === 0) {
         this.logger.info("No new jobs to report after filtering");
-        if (connection) await this.mongoService.close();
         return true;
       }
 
-      // Save the most recent job
-      if (jobs.length > 0 && connection) {
-        try {
-          await this.mongoService.saveLastJob({
-            jobTitle: jobs[0].title,
-            companyName: jobs[0].companyName,
-          });
-        } catch (dbError) {
-          this.logger.error(
-            "Error saving last job to MongoDB",
-            dbError as Error
-          );
-        }
-      }
-
-      if (connection) {
-        try {
-          await this.mongoService.close();
-        } catch (closeError) {
-          this.logger.error(
-            "Error closing MongoDB connection",
-            closeError as Error
-          );
-        }
-      }
-
-      // Format message
       const message = this.messageFormatter.formatJobsMessage(filteredJobs);
-
-      // Send message
       await this.telegramService.sendMessage(message);
-      this.logger.info("Message sent successfully!");
 
       return true;
     } catch (error) {
       this.logger.error("Error running job monitor", error as Error);
-      // Ensure MongoDB connection is closed in case of error
-      if (this.mongoService) {
-        try {
-          await this.mongoService.close();
-        } catch (closeError) {
-          this.logger.error(
-            "Error closing MongoDB connection",
-            closeError as Error
-          );
-        }
-      }
       return false;
     }
   }

@@ -14,13 +14,16 @@ export default class DouJobService {
 
   async getJobs() {
     try {
+      this.logger.info("Fetching jobs...");
       const htmlPage = await this.loadPage();
-      const moreJobsJson = await this.loadMoreJobs();
       if (!htmlPage) return [];
+      const moreJobsJson = await this.loadMoreJobs();
 
       const jobs = this.parseJobs(htmlPage);
       const moreJobs = moreJobsJson ? this.parseMoreJobs(moreJobsJson) : [];
-      return jobs.concat(moreJobs);
+      const result = jobs.concat(moreJobs);
+      this.logger.info(`Found ${jobs.length} jobs`);
+      return result;
     } catch (error: any) {
       this.logger.error("Error getting jobs", new Error(error.message));
       return [];

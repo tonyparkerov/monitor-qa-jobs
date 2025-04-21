@@ -11,41 +11,47 @@ export default class MongoDbService {
   private collection: string;
   private client: MongoClient;
   private logger = createLogger("MongoDbService");
+  private isConnected: boolean;
 
   constructor(mongoConfig: MongoConfig) {
     this.uri = mongoConfig.uri;
     this.dbName = mongoConfig.dbName;
     this.collection = mongoConfig.collection;
     this.client = new MongoClient(this.uri);
+    this.isConnected = false;
   }
 
-  async connect(): Promise<boolean> {
-    try {
-      if (!this.uri) {
-        throw new Error("MongoDB connection URI is not configured");
+  private async connect(): Promise<void> {
+    if (!this.isConnected) {
+      try {
+        if (!this.uri) {
+          throw new Error("MongoDB connection URI is not configured");
+        }
+        await this.client.connect();
+        this.logger.info("Connected to MongoDB");
+        this.isConnected = true;
+      } catch (error) {
+        this.logger.error("Failed to connect to MongoDB", error as Error);
+        this.isConnected = false;
       }
-      await this.client.connect();
-      this.logger.info("Connected to MongoDB");
-      return true;
-    } catch (error) {
-      this.logger.error("Failed to connect to MongoDB", error as Error);
-      return false;
+    } else {
+      this.logger.debug("Already connected to DB");
     }
   }
 
-  async close(): Promise<void> {
-    if (this.client) {
+  private async close(): Promise<void> {
+    if (this.client && this.isConnected) {
       await this.client.close();
+      this.isConnected = false;
       this.logger.info("MongoDB connection closed");
+    } else {
+      this.logger.debug("Connection to DB already closed");
     }
   }
 
   async getLastJob(): Promise<JobFromDB | null> {
     try {
-      if (!this.client) {
-        throw new Error("MongoDB client is not connected");
-      }
-
+      await this.connect();
       const db = this.client.db(this.dbName);
       const collection = db.collection(this.collection);
       const lastJobDoc = await collection.findOne({});
@@ -54,6 +60,7 @@ export default class MongoDbService {
         this.logger.info(
           `Retrieved last job from MongoDB: ${lastJobDoc.jobTitle} | ${lastJobDoc.companyName}`
         );
+        await this.close();
         return {
           jobTitle: lastJobDoc.jobTitle,
           companyName: lastJobDoc.companyName,
@@ -61,19 +68,18 @@ export default class MongoDbService {
       }
 
       this.logger.info("No last job found in MongoDB");
+      await this.close();
       return null;
     } catch (error) {
       this.logger.error("Failed to get last job from MongoDB", error as Error);
+      await this.close()
       return null;
     }
   }
 
   async saveLastJob(job: JobFromDB): Promise<boolean> {
     try {
-      if (!this.client) {
-        throw new Error("MongoDB client is not connected");
-      }
-
+      await this.connect();
       const db = this.client.db(this.dbName);
       const collection = db.collection(this.collection);
 
@@ -99,10 +105,11 @@ export default class MongoDbService {
           `Last job inserted in MongoDB: ${job.jobTitle} | ${job.companyName}`
         );
       }
-
+      await this.close();
       return true;
     } catch (error) {
       this.logger.error("Failed to save last job to MongoDB", error as Error);
+      await this.close();
       return false;
     }
   }
